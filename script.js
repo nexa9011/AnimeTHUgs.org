@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // SVG turbulence element to animate subtle waves
   const turb = document.getElementById('turb');
 
-  // Subtle idle wave animation (oscillate baseFrequency) - updated less frequently
+  // Subtle idle wave animation with dynamic frequency changes
   let start = performance.now();
   let lastUpdate = 0;
   function idleWave(t) {
     const elapsed = (t - start) / 1000;
-    if (t - lastUpdate > 100) {  // Update every 100ms instead of every frame
-      const bfX = 0.009 + Math.sin(elapsed * 0.6) * 0.002;
-      const bfY = 0.018 + Math.cos(elapsed * 0.5) * 0.003;
+    if (t - lastUpdate > 100) {
+      const bfX = 0.009 + Math.sin(elapsed * 0.8) * 0.003; // Increased amplitude for more movement
+      const bfY = 0.018 + Math.cos(elapsed * 0.6) * 0.004;
       if (turb) turb.setAttribute('baseFrequency', bfX.toFixed(4) + ' ' + bfY.toFixed(4));
       lastUpdate = t;
     }
@@ -40,29 +40,26 @@ document.addEventListener('DOMContentLoaded', () => {
     r.addEventListener('animationend', () => r.remove());
   }
 
-  // Run the main transition (hero -> home) with background pulse
+  // Run the main transition (hero -> home) with background ripple
   function runTransition(){
     if(hero.classList.contains('transitioning')) return;
     hero.classList.add('transitioning');
-    // energetic small pulse to SVG displacement
     if(turb){
       turb.setAttribute('baseFrequency', '0.03 0.04');
-      setTimeout(()=> turb.setAttribute('baseFrequency','0.012 0.02'), 450);
+      setTimeout(() => turb.setAttribute('baseFrequency', '0.012 0.02'), 450);
     }
-    // background zoom + pulse
     bg.classList.add('bg-animate');
     document.body.classList.add('body-pulse');
 
-    // add ripple to hero glass
     const glass = hero.querySelector('.glass');
     createRipple(glass, window.innerWidth/2, window.innerHeight/2 - 60);
 
-    setTimeout(()=>{
+    setTimeout(() => {
       home.classList.add('visible');
       home.scrollIntoView({behavior:'smooth'});
     }, 650);
 
-    setTimeout(()=>{
+    setTimeout(() => {
       bg.classList.remove('bg-animate');
       document.body.classList.remove('body-pulse');
       hero.classList.remove('transitioning');
@@ -76,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
     alert('Watch pages are coming soon. Site is under development.');
   });
 
-  // wheel / swipe detection
   hero.addEventListener('wheel', e => {
     if(e.deltaY > 20) runTransition();
   }, {passive:true});
@@ -92,33 +88,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, {passive:true});
 
-  // Add hover/interaction ripple to all glass elements (energetic ripple on hover)
   document.querySelectorAll('.glass').forEach(g => {
     g.addEventListener('pointerenter', (ev) => {
       createRipple(g, ev.clientX, ev.clientY);
       if(turb){
         turb.setAttribute('baseFrequency', '0.02 0.03');
-        setTimeout(()=> turb.setAttribute('baseFrequency','0.012 0.02'), 380);
+        setTimeout(() => turb.setAttribute('baseFrequency', '0.012 0.02'), 380);
       }
     });
     g.addEventListener('pointerdown', (ev) => createRipple(g, ev.clientX, ev.clientY));
   });
 
-  // Learn More button (navbar) toggles more-info visibility as well
   const navLearn = document.getElementById('learnBtn');
   navLearn.addEventListener('click', () => {
     if(!moreInfo.classList.contains('hidden')){
       moreInfo.scrollIntoView({behavior:'smooth', block:'center'});
     } else {
       moreInfo.classList.remove('hidden');
-      setTimeout(()=> {
+      setTimeout(() => {
         const el = document.getElementById('moreInfo');
         createRipple(el, el.getBoundingClientRect().left + 60, el.getBoundingClientRect().top + 40);
       }, 150);
     }
   });
 
-  // Full screen button
   if (fullscreenBtn) {
     fullscreenBtn.addEventListener('click', () => {
       if (!document.fullscreenElement) {
@@ -132,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ---------- Added: cinematic soft animations (particles, parallax, waves, reveal) ---------- */
 (function(){
-  // Particles - soft drifting orbs (optimized: reduced count, simplified drawing)
   const canvas = document.getElementById('particles-canvas');
   if (canvas) {
     const ctx = canvas.getContext('2d');
@@ -145,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.setTransform(dpi, 0, 0, dpi, 0, 0);
     }
     const colors = ['rgba(120,200,255,0.12)','rgba(120,200,255,0.09)','rgba(160,225,255,0.06)'];
-    const count = Math.min(40, Math.floor((window.innerWidth*window.innerHeight)/120000));  // Reduced particle count
+    const count = Math.min(40, Math.floor((window.innerWidth*window.innerHeight)/120000));
     const particles = [];
     function initParticles(){
       particles.length = 0;
@@ -174,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(p.y < -80) p.y = h + 80;
         if(p.y > h + 80) p.y = -80;
         ctx.beginPath();
-        ctx.fillStyle = p.color;  // Simplified: no radial gradient for better performance
+        ctx.fillStyle = p.color;
         ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
         ctx.fill();
       });
@@ -182,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let raf = null;
     let lastFrame = 0;
     function animate(t) {
-      if (t - lastFrame > 33) {  // Limit to ~30fps
+      if (t - lastFrame > 33) {
         draw();
         lastFrame = t;
       }
@@ -196,14 +188,12 @@ document.addEventListener('DOMContentLoaded', () => {
     onResize();
     animate(performance.now());
 
-    // gentle fade when switching to mobile/hidden tab
-    document.addEventListener('visibilitychange', ()=> {
+    document.addEventListener('visibilitychange', () => {
       if(document.hidden){ canvas.style.opacity = 0.45; cancelAnimationFrame(raf); }
       else { canvas.style.opacity = 0.95; animate(performance.now()); }
     });
   }
 
-  // Parallax - subtle movement for background and glass elements (throttled)
   (function(){
     const bg = document.getElementById('bg');
     const parallaxEls = Array.from(document.querySelectorAll('.glass, .hero-inner, .card'));
@@ -211,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lastMoveTime = 0;
     function handleMove(e){
       const now = performance.now();
-      if (now - lastMoveTime < 16) return;  // Throttle to ~60fps
+      if (now - lastMoveTime < 16) return;
       lastMoveTime = now;
       const clientX = (e.clientX !== undefined) ? e.clientX : (e.touches && e.touches[0] && e.touches[0].clientX) || cx;
       const clientY = (e.clientY !== undefined) ? e.clientY : (e.touches && e.touches[0] && e.touches[0].clientY) || cy;
@@ -231,23 +221,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.addEventListener('pointermove', handleMove, {passive:true});
     window.addEventListener('touchmove', handleMove, {passive:true});
-    window.addEventListener('pointerleave', ()=> {
+    window.addEventListener('pointerleave', () => {
       if(bg) bg.style.transform = '';
       parallaxEls.forEach(el=> el.style.transform = '');
     });
   })();
 
-  // Wave animate class toggle
   const hero = document.getElementById('hero');
   const heroWave = document.getElementById('hero-wave');
   if(hero && heroWave){
-    setTimeout(()=> heroWave.classList.add('wave-animate'), 120);
-    // slow modulate opacity for cinematic breathing
+    setTimeout(() => heroWave.classList.add('wave-animate'), 120);
     let up = true;
-    setInterval(()=> {
+    setInterval(() => {
       heroWave.style.opacity = (up ? 0.20 : 0.14);
       up = !up;
     }, 4200);
   }
-
 })();
