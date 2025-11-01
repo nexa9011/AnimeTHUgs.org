@@ -12,18 +12,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // SVG turbulence element to animate subtle waves
   const turb = document.getElementById('turb');
 
-  // Subtle idle wave animation with dynamic frequency changes
+  // Continuous idle wave animation for home screen
   let start = performance.now();
   let lastUpdate = 0;
   function idleWave(t) {
     const elapsed = (t - start) / 1000;
     if (t - lastUpdate > 100) {
-      const bfX = 0.009 + Math.sin(elapsed * 0.8) * 0.003; // Increased amplitude for more movement
+      const bfX = 0.009 + Math.sin(elapsed * 0.8) * 0.003;
       const bfY = 0.018 + Math.cos(elapsed * 0.6) * 0.004;
       if (turb) turb.setAttribute('baseFrequency', bfX.toFixed(4) + ' ' + bfY.toFixed(4));
       lastUpdate = t;
     }
-    requestAnimationFrame(idleWave);
+    if (hero.getBoundingClientRect().top <= window.innerHeight) { // Run only when hero is visible
+      requestAnimationFrame(idleWave);
+    }
   }
   requestAnimationFrame(idleWave);
 
@@ -178,7 +180,9 @@ document.addEventListener('DOMContentLoaded', () => {
         draw();
         lastFrame = t;
       }
-      raf = requestAnimationFrame(animate);
+      if (document.getElementById('hero').getBoundingClientRect().top <= window.innerHeight) { // Run only when hero is visible
+        raf = requestAnimationFrame(animate);
+      }
     }
     function onResize(){
       resize();
@@ -230,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const hero = document.getElementById('hero');
   const heroWave = document.getElementById('hero-wave');
   if(hero && heroWave){
-    setTimeout(() => heroWave.classList.add('wave-animate'), 120);
+    heroWave.classList.add('wave-animate'); // Start wave immediately
     let up = true;
     setInterval(() => {
       heroWave.style.opacity = (up ? 0.20 : 0.14);
