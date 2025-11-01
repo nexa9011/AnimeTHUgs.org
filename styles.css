@@ -1,10 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root{
   --accent: rgba(120,200,255,0.95);
   --glass-bg: rgba(255,255,255,0.04);
   --glass-border: rgba(255,255,255,0.08);
-  --rainbow-glow: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff);
   --max-width: 1100px;
 }
 
@@ -31,20 +34,6 @@ body{
 .bg-animate{
   transform:scale(1.06) translateZ(0);
   filter:brightness(0.5) saturate(1.2);
-}
-
-/* Dynamic gradient overlay for smooth color shifts */
-#bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(45deg, rgba(120,200,255,0.05), rgba(255,107,107,0.03), rgba(78,205,196,0.04));
-  animation: gradientShift 20s ease-in-out infinite;
-  z-index: -1;
-}
-@keyframes gradientShift {
-  0%, 100% { opacity: 0.6; transform: rotate(0deg); }
-  50% { opacity: 0.8; transform: rotate(180deg); }
 }
 
 /* glass base */
@@ -95,24 +84,6 @@ body{
   pointer-events:none;
 }
 
-/* New: Rainbow edge glow pulse */
-.dynamic-glass {
-  --glow-intensity: 0;
-}
-.dynamic-glass::before {
-  box-shadow: inset 0 0 20px var(--rainbow-glow, transparent);
-  transition: box-shadow 0.8s ease;
-}
-.dynamic-glass.pulse-glow::before {
-  --glow-intensity: 1;
-  box-shadow: inset 0 0 30px var(--rainbow-glow);
-  animation: glowPulse 2s ease-in-out infinite alternate;
-}
-@keyframes glowPulse {
-  from { filter: hue-rotate(0deg) brightness(1); }
-  to { filter: hue-rotate(360deg) brightness(1.2); }
-}
-
 /* hover effect: energetic ripple + sheen */
 .glass:hover::before{
   opacity:1;
@@ -139,8 +110,8 @@ body{
 .ghost{border:1px solid rgba(255,255,255,0.06); color:#bfe8ff}
 .cta{background:linear-gradient(90deg, rgba(255,255,255,0.08), rgba(120,200,255,0.08)); color:#fff}
 
-#hero{height:100vh; display:grid; place-items:center; padding:32px;}
-.hero-inner{max-width:var(--max-width); width:100%; text-align:center; animation:fadeUp .9s ease-out .2s forwards;}
+#hero{height:100vh; display:grid; place-items:center; padding:16px;}
+.hero-inner{max-width:var(--max-width); width:100%; text-align:center;}
 .title{font-size:3rem; margin:0 0 6px;}
 .subtitle{margin:0 0 18px; color:#d3f2ffcc}
 
@@ -183,7 +154,7 @@ body{
 }
 
 
-/* ---------- Existing + New: cinematic soft animations (particles, parallax, wave, reveal, sakura, damped inertia) ---------- */
+/* ---------- Added: cinematic soft animations (particles, parallax, wave, reveal) ---------- */
 
 /* particles canvas */
 #particles-canvas{
@@ -196,17 +167,7 @@ body{
   transition:opacity .9s ease;
 }
 
-/* New: Sakura floating canvas */
-#sakuara-canvas {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: 0.7;
-}
-
-/* subtle parallax translations with damping */
+/* subtle parallax translations */
 .parallax {
   will-change: transform;
   transition: transform 0.35s cubic-bezier(.2,.9,.2,1);
@@ -233,29 +194,12 @@ body{
   filter: blur(6px) saturate(1.1);
 }
 
-/* animate the wave drifting left-right slowly with morph */
+/* animate the wave drifting left-right slowly */
 @keyframes waveDrift {
-  0%   { transform: translateX(-6%); d: path("M0,30 C300,120 900,0 1200,60 L1200 120 L0 120 Z"); }
-  50%  { transform: translateX(6%); d: path("M0,60 C300,0 900,120 1200,30 L1200 120 L0 120 Z"); }
-  100% { transform: translateX(-6%); d: path("M0,30 C300,120 900,0 1200,60 L1200 120 L0 120 Z"); }
+  0%   { transform: translateX(-6%); }
+  50%  { transform: translateX(6%); }
+  100% { transform: translateX(-6%); }
 }
 .wave-animate .wave-svg { animation: waveDrift 12s ease-in-out infinite; }
-
-/* reveal animations for text */
-.reveal-title, .reveal-subtitle{
-  opacity:0;
-  transform:translateY(18px);
-  transition:transform 0.9s cubic-bezier(.2,.9,.2,1), opacity 0.9s ease;
-  will-change: transform, opacity;
-}
-.revealed .reveal-title{ opacity:1; transform:translateY(0); transition-delay:0.18s; }
-.revealed .reveal-subtitle{ opacity:1; transform:translateY(0); transition-delay:0.34s; }
-
-/* reduce particle canvas weight on small screens */
-@media (max-width:600px){
-  #particles-canvas{ opacity:0.85; }
-  #hero-wave{ bottom:6%; height:90px; opacity:0.14; }
-  #sakura-canvas { opacity: 0.5; }
-}
 
 /* keep existing variables consistent */
