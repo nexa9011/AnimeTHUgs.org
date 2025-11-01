@@ -12,14 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // SVG turbulence element to animate subtle waves
   const turb = document.getElementById('turb');
 
-  // Subtle idle wave animation (oscillate baseFrequency)
+  // Subtle idle wave animation (oscillate baseFrequency) - updated less frequently
   let start = performance.now();
-  function idleWave(t){
+  let lastUpdate = 0;
+  function idleWave(t) {
     const elapsed = (t - start) / 1000;
-    // base frequency oscillates gently to create moving liquid
-    const bfX = 0.009 + Math.sin(elapsed * 0.6) * 0.002;
-    const bfY = 0.018 + Math.cos(elapsed * 0.5) * 0.003;
-    if(turb) turb.setAttribute('baseFrequency', bfX.toFixed(4) + ' ' + bfY.toFixed(4));
+    if (t - lastUpdate > 100) {  // Update every 100ms instead of every frame
+      const bfX = 0.009 + Math.sin(elapsed * 0.6) * 0.002;
+      const bfY = 0.018 + Math.cos(elapsed * 0.5) * 0.003;
+      if (turb) turb.setAttribute('baseFrequency', bfX.toFixed(4) + ' ' + bfY.toFixed(4));
+      lastUpdate = t;
+    }
     requestAnimationFrame(idleWave);
   }
   requestAnimationFrame(idleWave);
@@ -43,7 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     hero.classList.add('transitioning');
     // energetic small pulse to SVG displacement
     if(turb){
-      // briefly increase displacement scale by changing seed (creates a different pattern)
       turb.setAttribute('baseFrequency', '0.03 0.04');
       setTimeout(()=> turb.setAttribute('baseFrequency','0.012 0.02'), 450);
     }
@@ -94,26 +96,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.glass').forEach(g => {
     g.addEventListener('pointerenter', (ev) => {
       createRipple(g, ev.clientX, ev.clientY);
-      // momentarily increase turbulence for a stronger ripple feel
       if(turb){
         turb.setAttribute('baseFrequency', '0.02 0.03');
         setTimeout(()=> turb.setAttribute('baseFrequency','0.012 0.02'), 380);
       }
     });
-    // also create ripple on click/tap
     g.addEventListener('pointerdown', (ev) => createRipple(g, ev.clientX, ev.clientY));
   });
 
   // Learn More button (navbar) toggles more-info visibility as well
   const navLearn = document.getElementById('learnBtn');
   navLearn.addEventListener('click', () => {
-    // if already visible, just scroll
     if(!moreInfo.classList.contains('hidden')){
       moreInfo.scrollIntoView({behavior:'smooth', block:'center'});
     } else {
-      // show the more-info panel (keeps liquid effect)
       moreInfo.classList.remove('hidden');
-      // small ripple on the moreInfo panel
       setTimeout(()=> {
         const el = document.getElementById('moreInfo');
         createRipple(el, el.getBoundingClientRect().left + 60, el.getBoundingClientRect().top + 40);
@@ -135,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /* ---------- Added: cinematic soft animations (particles, parallax, waves, reveal) ---------- */
 (function(){
-  // Particles - soft drifting orbs
+  // Particles - soft drifting orbs (optimized: reduced count, simplified drawing)
   const canvas = document.getElementById('particles-canvas');
   if (canvas) {
     const ctx = canvas.getContext('2d');
@@ -148,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.setTransform(dpi, 0, 0, dpi, 0, 0);
     }
     const colors = ['rgba(120,200,255,0.12)','rgba(120,200,255,0.09)','rgba(160,225,255,0.06)'];
-    const count = Math.min(80, Math.floor((window.innerWidth*window.innerHeight)/90000));
+    const count = Math.min(40, Math.floor((window.innerWidth*window.innerHeight)/120000));  // Reduced particle count
     const particles = [];
     function initParticles(){
       particles.length = 0;
@@ -176,19 +173,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if(p.x > w + 50) p.x = -50;
         if(p.y < -80) p.y = h + 80;
         if(p.y > h + 80) p.y = -80;
-        const g = ctx.createRadialGradient(p.x, p.y, p.r*0.1, p.x, p.y, p.r*1.2);
-        g.addColorStop(0, p.color.replace('0.12','0.35').replace('0.09','0.28'));
-        g.addColorStop(0.6, p.color);
-        g.addColorStop(1, 'rgba(120,200,255,0)');
         ctx.beginPath();
-        ctx.fillStyle = g;
+        ctx.fillStyle = p.color;  // Simplified: no radial gradient for better performance
         ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
         ctx.fill();
       });
     }
     let raf = null;
-    function animate(){
-      draw();
+    let lastFrame = 0;
+    function animate(t) {
+      if (t - lastFrame > 33) {  // Limit to ~30fps
+        draw();
+        lastFrame = t;
+      }
       raf = requestAnimationFrame(animate);
     }
     function onResize(){
@@ -197,32 +194,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.addEventListener('resize', onResize, {passive:true});
     onResize();
-    animate();
+    animate(performance.now());
 
     // gentle fade when switching to mobile/hidden tab
     document.addEventListener('visibilitychange', ()=> {
       if(document.hidden){ canvas.style.opacity = 0.45; cancelAnimationFrame(raf); }
-      else { canvas.style.opacity = 0.95; animate(); }
+      else { canvas.style.opacity = 0.95; animate(performance.now()); }
     });
   }
 
-  // Parallax - subtle movement for background and glass elements
+  // Parallax - subtle movement for background and glass elements (throttled)
   (function(){
     const bg = document.getElementById('bg');
     const parallaxEls = Array.from(document.querySelectorAll('.glass, .hero-inner, .card'));
     let cx = window.innerWidth/2, cy = window.innerHeight/2;
+    let lastMoveTime = 0;
     function handleMove(e){
+      const now = performance.now();
+      if (now - lastMoveTime < 16) return;  // Throttle to ~60fps
+      lastMoveTime = now;
       const clientX = (e.clientX !== undefined) ? e.clientX : (e.touches && e.touches[0] && e.touches[0].clientX) || cx;
       const clientY = (e.clientY !== undefined) ? e.clientY : (e.touches && e.touches[0] && e.touches[0].clientY) || cy;
-      const px = (clientX - cx) / cx; // -1 .. 1
+      const px = (clientX - cx) / cx;
       const py = (clientY - cy) / cy;
-      // background gentle translate and scale
       if(bg){
-        const moveX = px * 6; // px
+        const moveX = px * 6;
         const moveY = py * 6;
         bg.style.transform = `translate3d(${moveX}px, ${moveY}px, 0) scale(1.02)`;
       }
-      // glass elements slight parallax
       parallaxEls.forEach((el, i) => {
         const depth = 6 + (i % 4);
         const tx = px * depth * 0.6;
@@ -232,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     window.addEventListener('pointermove', handleMove, {passive:true});
     window.addEventListener('touchmove', handleMove, {passive:true});
-    // reset on leave
     window.addEventListener('pointerleave', ()=> {
       if(bg) bg.style.transform = '';
       parallaxEls.forEach(el=> el.style.transform = '');
