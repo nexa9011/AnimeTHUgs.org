@@ -12,14 +12,14 @@
   <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute; width:0; height:0;" aria-hidden="true" focusable="false">
     <filter id="liquid">
       <feTurbulence id="turb" baseFrequency="0.012 0.02" numOctaves="1" seed="2" stitchTiles="stitch"/>
-      <feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+      <feDisplacementMap in="SourceGraphic" scale="10" xChannelSelector="R" yChannelSelector="G"/> <!-- Increased scale for stronger effect -->
     </filter>
 
-    <!-- subtle noise for reflections -->
+    <!-- Enhanced reflective noise -->
     <filter id="softNoise">
-      <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="1" stitchTiles="stitch" result="noise"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="1" stitchTiles="stitch" result="noise"/>
       <feColorMatrix in="noise" type="saturate" values="0" result="mono"/>
-      <feGaussianBlur in="mono" stdDeviation="1" result="blur"/>
+      <feGaussianBlur in="mono" stdDeviation="1.5" result="blur"/> <!-- Increased blur for more reflection -->
       <feBlend in="SourceGraphic" in2="blur" mode="screen"/>
     </filter>
   </svg>
@@ -33,7 +33,6 @@
     <path d="M0,30 C300,120 900,0 1200,60 L1200 120 L0 120 Z"></path>
   </svg>
 </div>
-
 
   <header class="nav">
     <div class="brand">AnimeTHugs</div>
