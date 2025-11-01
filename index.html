@@ -8,13 +8,11 @@
   <meta name="description" content="AnimeTHugs — a clean anime-themed site with cinematic transitions and liquid glass effects." />
 </head>
 <body>
-  <!-- SVG filters for enhanced liquid glass effect -->
+  <!-- SVG filters for liquid glass effect -->
   <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute; width:0; height:0;" aria-hidden="true" focusable="false">
     <filter id="liquid">
-      <feTurbulence id="turb" baseFrequency="0.012 0.02" numOctaves="2" seed="2" stitchTiles="stitch" result="turb1"/>
-      <feTurbulence id="turb2" baseFrequency="0.05 0.08" numOctaves="1" seed="5" stitchTiles="stitch" result="turb2"/>
-      <feComposite in="turb1" in2="turb2" operator="arithmetic" k1="0.5" k2="0.5" k3="0" k4="0" result="combined"/>
-      <feDisplacementMap in="SourceGraphic" in2="combined" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+      <feTurbulence id="turb" baseFrequency="0.012 0.02" numOctaves="2" seed="2" stitchTiles="stitch"/>
+      <feDisplacementMap in="SourceGraphic" scale="6" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
 
     <!-- subtle noise for reflections -->
@@ -24,38 +22,30 @@
       <feGaussianBlur in="mono" stdDeviation="1" result="blur"/>
       <feBlend in="SourceGraphic" in2="blur" mode="screen"/>
     </filter>
-
-    <!-- Rainbow glow for edges -->
-    <filter id="rainbowGlow">
-      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
   </svg>
 
   <div id="bg"></div>
-  <canvas id="particles-canvas" aria-hidden="true"></canvas>
-  <canvas id="sakura-canvas" aria-hidden="true"></canvas> <!-- New: Floating sakura particles -->
+<canvas id="particles-canvas" aria-hidden="true"></canvas>
 
-  <!-- gentle translucent wave behind hero title -->
-  <div id="hero-wave" aria-hidden="true">
-    <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="wave-svg">
-      <path d="M0,30 C300,120 900,0 1200,60 L1200 120 L0 120 Z"></path>
-    </svg>
-  </div>
+<!-- gentle translucent wave behind hero title -->
+<div id="hero-wave" aria-hidden="true">
+  <svg viewBox="0 0 1200 120" preserveAspectRatio="none" class="wave-svg">
+    <path d="M0,30 C300,120 900,0 1200,60 L1200 120 L0 120 Z"></path>
+  </svg>
+</div>
+
 
   <header class="nav">
     <div class="brand">AnimeTHugs</div>
     <nav>
       <button id="learnBtn" class="btn">Learn More</button>
-      <a href="#home" class="ghost">Home</a>
+      <a href="#" class="ghost">Home</a>
+      <button id="fullscreenBtn" class="ghost">Full Screen</button>
     </nav>
   </header>
 
   <main id="hero">
-    <div class="hero-inner glass dynamic-glass"> <!-- Added dynamic-glass class -->
+    <div class="hero-inner glass revealed">
       <div class="glass-inner">
         <h1 class="title reveal-title">AnimeTHugs</h1>
         <p class="subtitle reveal-subtitle">A clean anime theme — content & community. (Site under development)</p>
@@ -68,25 +58,25 @@
   </main>
 
   <section id="home" class="page">
-    <div class="container glass dynamic-glass">
+    <div class="container glass">
       <div class="glass-inner">
         <h2>Welcome to AnimeTHugs</h2>
         <p>This site focuses on anime — dubbing, community discussion, and curated watchlists. The website is currently under development. Below are quick highlights and links.</p>
 
         <div class="cards">
-          <article class="card glass dynamic-glass">
+          <article class="card glass">
             <div class="glass-inner">
               <h3>Dubbing Studio</h3>
               <p>We're building a Hindi dub team and studio pages to showcase dubbed episodes and studio info.</p>
             </div>
           </article>
-          <article class="card glass dynamic-glass">
+          <article class="card glass">
             <div class="glass-inner">
               <h3>Community</h3>
               <p>Join discussion boards, guides, and watch parties (coming soon).</p>
             </div>
           </article>
-          <article class="card glass dynamic-glass">
+          <article class="card glass">
             <div class="glass-inner">
               <h3>Watchlist</h3>
               <p>Curated lists and streaming pages — watch buttons will link to available episodes.</p>
@@ -94,7 +84,7 @@
           </article>
         </div>
 
-        <div id="moreInfo" class="more-info hidden glass dynamic-glass">
+        <div id="moreInfo" class="more-info hidden glass">
           <div class="glass-inner">
             <h3>More info</h3>
             <p>AnimeTHugs is a work-in-progress site with a translucent UI inspired by the background art. Hover or tap elements for subtle glow and click <strong>WATCH</strong> for watch pages once live.</p>
@@ -104,7 +94,7 @@
     </div>
   </section>
 
-  <footer class="footer glass dynamic-glass">
+  <footer class="footer glass">
     <div class="glass-inner">
       <small>© AnimeTHugs — Site under development • Made with ♥</small>
     </div>
